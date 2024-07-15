@@ -1,0 +1,60 @@
+import matplotlib.pyplot as plt
+import numpy as np
+from matplotlib.patches import Polygon
+
+# Define the number of chromosomes
+num_chromosomes = 44
+
+# Generate random lengths for each pair of chromosomes between 200 to 300 cm
+chromosome_lengths = np.random.randint(200, 301, size=num_chromosomes // 2)
+chromosome_lengths = np.repeat(chromosome_lengths, 2)  # Duplicate each length for the pair
+
+# Define the colors for each dog breed origin
+origins = ['Bulldog', 'Poodle', 'German Shepherd', 'Labrador', 'Beagle']
+colors = ['#FFA07A', '#FFD700', '#87CEFA', '#800080', '#556B2F']
+
+# Create a figure and axis
+fig, ax = plt.subplots(figsize=(16, 12))
+
+# Generate random data for each chromosome pair
+np.random.seed(42)
+for i in range(num_chromosomes):
+    current_position = 0
+    
+    # Generate two sets of randomized gene bars per chromosome pair
+    while current_position < chromosome_lengths[i]:
+        gene_length = np.random.randint(5, 30)
+        gene_length = min(gene_length, chromosome_lengths[i] - current_position)
+        origin = np.random.choice(origins)
+        
+        # Calculate vertices for the polygon to create rounded corners
+        vertices = [
+            (current_position, i),                     # bottom left
+            (current_position + gene_length, i),       # bottom right
+            (current_position + gene_length, i + 0.8), # top right
+            (current_position, i + 0.8),               # top left
+            (current_position, i),                     # bottom left again to close the polygon
+        ]
+        
+        # Create a polygon patch with rounded corners
+        polygon = Polygon(vertices, closed=True, edgecolor='black', facecolor=colors[origins.index(origin)], linewidth=1, joinstyle='round')
+        ax.add_patch(polygon)
+        
+        current_position += gene_length
+
+# Add labels and legend
+ax.set_xlabel('Genetic position (cM)')
+ax.set_ylabel('Chromosome')
+ax.set_yticks(np.arange(0, num_chromosomes, 2))  # Adjusted yticks to accommodate two bars per chromosome pair
+ax.set_yticklabels(np.arange(1, num_chromosomes // 2 + 1))
+ax.set_ylim(-1, num_chromosomes)  # Adjusted ylim to fit all bars
+ax.set_xlim(0, 400)  # Adjusted xlim to accommodate maximum possible chromosome length
+
+# Create custom legend
+from matplotlib.patches import Patch
+legend_elements = [Patch(facecolor=color, edgecolor='black', label=origin) for origin, color in zip(origins, colors)]
+ax.legend(handles=legend_elements, title='Dog Breed Origin', loc='upper right')
+
+# Show plot
+plt.tight_layout()
+plt.show()
